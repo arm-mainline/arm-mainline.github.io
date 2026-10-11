@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniTube - 15 Yaş Altı Video Platformu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Doğrulama Kontrolü -->
+    <script>
+        if (localStorage.getItem('isVerified') !== 'true') {
+            window.location.href = 'index.html';
+        }
+    </script>
+
+    <header class="navbar">
+        <div class="logo">🎥 MiniTube <span class="badge">15-</span></div>
+        <button class="logout-btn" onclick="logout()">Güvenli Çıkış</button>
+    </header>
+
+    <main class="container">
+        <h2 class="section-title">Öne Çıkan Videolar</h2>
+        <div class="video-grid">
+            
+            <!-- Video 1 -->
+            <div class="video-card">
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video 1" allowfullscreen></iframe>
+                </div>
+                <div class="video-info">
+                    <h3>Yazılım ve Kodlama Eğitimi #1</h3>
+                    <p>Teknoloji Kanalı • 1.2 B görüntüleme</p>
+                </div>
+            </div>
+
+            <!-- Video 2 -->
+            <div class="video-card">
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video 2" allowfullscreen></iframe>
+                </div>
+                <div class="video-info">
+                    <h3>Arduino ile Proje Yapımı</h3>
+                    <p>Robotik Dünyası • 850 görüntüleme</p>
+                </div>
+            </div>
+
+            <!-- Video 3 -->
+            <div class="video-card">
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video 3" allowfullscreen></iframe>
+                </div>
+                <div class="video-info">
+                    <h3>Eğlenceli Bilim Deneyleri</h3>
+                    <p>Genç Mucidler • 2.4 B görüntüleme</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        function logout() {
+            localStorage.removeItem('isVerified');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
