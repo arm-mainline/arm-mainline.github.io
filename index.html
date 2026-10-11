@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kimlik Doğrulama - MiniTube</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="gate-body">
+    <div class="gate-card">
+        <div class="logo-title">🎥 MiniTube</div>
+        <h2>🔒 Yaş ve Kimlik Doğrulaması</h2>
+        <p>Bu platforma yalnızca <strong>15 yaş altı</strong> kullanıcılar T.C. doğrulaması ile erişebilir.</p>
+        
+        <div class="input-group">
+            <label for="tcNo">T.C. Kimlik Numarası:</label>
+            <input type="text" id="tcNo" maxlength="11" placeholder="11 Haneli T.C. No">
+        </div>
+
+        <div class="input-group">
+            <label for="birthYear">Doğum Yılı:</label>
+            <input type="number" id="birthYear" placeholder="Örn: 2014" min="2000" max="2026">
+        </div>
+        
+        <button onclick="verifyUser()">Doğrula ve Giriş Yap</button>
+        <p id="errorMsg" class="error"></p>
+    </div>
+
+    <script>
+        // T.C. Kimlik Numarası Matematiksel Algoritma Kontrolü
+        function validateTCKN(tc) {
+            if (tc.length !== 11 || tc[0] === '0' || isNaN(tc)) return false;
+            
+            let digits = tc.split('').map(Number);
+            let sumOdd = digits[0] + digits[2] + digits[4] + digits[6] + digits[8];
+            let sumEven = digits[1] + digits[3] + digits[5] + digits[7];
+            
+            let d10 = ((sumOdd * 7) - sumEven) % 10;
+            if (d10 < 0) d10 += 10;
+            
+            let d11 = (digits.slice(0, 10).reduce((a, b) => a + b, 0)) % 10;
+            
+            return digits[9] === d10 && digits[10] === d11;
+        }
+
+        function verifyUser() {
+            const tc = document.getElementById('tcNo').value.trim();
+            const birthYearInput = document.getElementById('birthYear').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.textContent = "";
+
+            if (!tc || !birthYearInput) {
+                errorMsg.textContent = "Lütfen tüm alanları doldurun!";
+                return;
+            }
+
+            // T.C. Algoritma Kontrolü
+            if (!validateTCKN(tc)) {
+                errorMsg.textContent = "Hata: Geçersiz T.C. Kimlik Numarası!";
+                return;
+            }
+
+            const birthYear = parseInt(birthYearInput);
+            const currentYear = new Date().getFullYear();
+            const age = currentYear - birthYear;
+
+            // Yaş Kontrolü (15 yaş altı -> 0-14 yaş)
+            if (age >= 0 && age < 15) {
+                localStorage.setItem('isVerified', 'true');
+                window.location.href = 'platform.html';
+            } else if (age >= 15) {
+                errorMsg.textContent = "Erişim Reddedildi: Platform yalnızca 15 yaş altı içindir.";
+            } else {
+                errorMsg.textContent = "Lütfen geçerli bir doğum yılı girin.";
+            }
+        }
+    </script>
+</body>
+</html>
