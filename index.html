@@ -3,30 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kimlik Doğrulama - MiniTube</title>
+    <title>MiniTube - 15 Yaş Altı Platformu</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="gate-body">
-    <div class="gate-card">
-        <div class="logo-title">🎥 MiniTube</div>
-        <h2>🔒 Yaş ve Kimlik Doğrulaması</h2>
-        <p>Bu platforma yalnızca <strong>15 yaş altı</strong> kullanıcılar T.C. doğrulaması ile erişebilir.</p>
-        
-        <div class="input-group">
-            <label for="tcNo">T.C. Kimlik Numarası:</label>
-            <input type="text" id="tcNo" maxlength="11" placeholder="11 Haneli T.C. No">
-        </div>
+<body>
 
-        <div class="input-group">
-            <label for="birthYear">Doğum Yılı:</label>
-            <input type="number" id="birthYear" placeholder="Örn: 2014" min="2000" max="2026">
+    <!-- 1. BÖLÜM: YAŞ DOĞRULAMA EKRANI (Başlangıçta görünür) -->
+    <div id="authGate" class="gate-body">
+        <div class="gate-card">
+            <div class="logo-title">🎥 MiniTube</div>
+            <h2>🔒 Yaş ve Kimlik Doğrulaması</h2>
+            <p>Bu platforma yalnızca <strong>15 yaş altı</strong> kullanıcılar T.C. doğrulaması ile erişebilir.</p>
+            
+            <div class="input-group">
+                <label for="tcNo">T.C. Kimlik Numarası:</label>
+                <input type="text" id="tcNo" maxlength="11" placeholder="11 Haneli T.C. No">
+            </div>
+
+            <div class="input-group">
+                <label for="birthYear">Doğum Yılı:</label>
+                <input type="number" id="birthYear" placeholder="Örn: 2014" min="2000" max="2026">
+            </div>
+            
+            <button onclick="verifyUser()">Doğrula ve Giriş Yap</button>
+            <p id="errorMsg" class="error"></p>
         </div>
-        
-        <button onclick="verifyUser()">Doğrula ve Giriş Yap</button>
-        <p id="errorMsg" class="error"></p>
+    </div>
+
+    <!-- 2. BÖLÜM: VİDEO PLATFORMU (Başlangıçta gizlidir) -->
+    <div id="videoPlatform" style="display: none;">
+        <header class="navbar">
+            <div class="logo">🎥 MiniTube <span class="badge">15-</span></div>
+            <button class="logout-btn" onclick="logout()">Güvenli Çıkış</button>
+        </header>
+
+        <main class="container">
+            <h2 class="section-title">Öne Çıkan Videolar</h2>
+            <div class="video-grid">
+                
+                <!-- Video 1 -->
+                <div class="video-card">
+                    <div class="video-wrapper">
+                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video 1" allowfullscreen></iframe>
+                    </div>
+                    <div class="video-info">
+                        <h3>Yazılım ve Kodlama Eğitimi #1</h3>
+                        <p>Teknoloji Kanalı • 1.2 B görüntüleme</p>
+                    </div>
+                </div>
+
+                <!-- Video 2 -->
+                <div class="video-card">
+                    <div class="video-wrapper">
+                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video 2" allowfullscreen></iframe>
+                    </div>
+                    <div class="video-info">
+                        <h3>Arduino ile Proje Yapımı</h3>
+                        <p>Robotik Dünyası • 850 görüntüleme</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
     </div>
 
     <script>
+        // Sayfa yüklendiğinde hafızayı kontrol et
+        window.onload = function() {
+            if (localStorage.getItem('isVerified') === 'true') {
+                showPlatform();
+            }
+        };
+
         // T.C. Kimlik Numarası Matematiksel Algoritma Kontrolü
         function validateTCKN(tc) {
             if (tc.length !== 11 || tc[0] === '0' || isNaN(tc)) return false;
@@ -54,7 +102,6 @@
                 return;
             }
 
-            // T.C. Algoritma Kontrolü
             if (!validateTCKN(tc)) {
                 errorMsg.textContent = "Hata: Geçersiz T.C. Kimlik Numarası!";
                 return;
@@ -64,15 +111,24 @@
             const currentYear = new Date().getFullYear();
             const age = currentYear - birthYear;
 
-            // Yaş Kontrolü (15 yaş altı -> 0-14 yaş)
             if (age >= 0 && age < 15) {
                 localStorage.setItem('isVerified', 'true');
-                window.location.href = 'platform.html';
+                showPlatform();
             } else if (age >= 15) {
                 errorMsg.textContent = "Erişim Reddedildi: Platform yalnızca 15 yaş altı içindir.";
             } else {
                 errorMsg.textContent = "Lütfen geçerli bir doğum yılı girin.";
             }
+        }
+
+        function showPlatform() {
+            document.getElementById('authGate').style.display = 'none';
+            document.getElementById('videoPlatform').style.display = 'block';
+        }
+
+        function logout() {
+            localStorage.removeItem('isVerified');
+            location.reload(); // Sayfayı yenileyerek başa dön
         }
     </script>
 </body>
