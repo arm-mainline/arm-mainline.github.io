@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Benimle Çıkar Mısın?</title>
+<meta name="theme-color" content="#0c090f">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: radial-gradient(ellipse at 50% 35%, #2a1222 0%, #140b14 45%, #0b080d 100%);
+    color: #fff;
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  #soru {
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(16px, 4vh, 48px) 16px clamp(16px, 3vh, 32px);
+  }
+
+  .karakter {
+    width: clamp(84px, calc(20vh - var(--n) * .8vh), 200px);
+    aspect-ratio: 1;
+    flex: none;
+    transition: width .5s ease;
+    animation: zipla 2.4s ease-in-out infinite;
+  }
+  .karakter svg { width: 100%; height: 100%; overflow: visible; }
+  @keyframes zipla {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-8px) rotate(2deg); }
+  }
+  .karakter.titre { animation: titre .4s ease; }
+  @keyframes titre {
+    20% { transform: translateX(-8px) rotate(-6deg); }
+    40% { transform: translateX(8px) rotate(6deg); }
+    60% { transform: translateX(-5px) rotate(-3deg); }
+    80% { transform: translateX(4px) rotate(2deg); }
+  }
+  #agiz, #kas, #gozyasi { transition: opacity .3s ease; }
+  #kas { opacity: 0; }
+  #gozyasi { opacity: 0; }
+  .mod-2 #kas, .mod-3 #kas { opacity: 1; }
+  .mod-3 #gozyasi { opacity: 1; animation: damla 1.4s ease-in infinite; }
+  @keyframes damla {
+    0% { transform: translateY(0); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateY(16px); opacity: 0; }
+  }
+
+  h1 {
+    margin: clamp(8px, 2vh, 20px) 0 0;
+    font-size: clamp(34px, 6.4vw, 88px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    text-align: center;
+    text-wrap: balance;
+    text-shadow: 0 0 40px rgba(255, 92, 150, .35);
+  }
+
+  .butonlar {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    container-type: size;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(14px, 2.4vw, 36px);
+  }
+
+  button {
+    font: inherit;
+    border: 0;
+    cursor: pointer;
+    color: #fff;
+    font-weight: 800;
+    line-height: 1;
+    touch-action: manipulation;
+  }
+
+  #evet {
+    --s: 1;
+    background: #1fc25a;
+    font-size: min(calc(clamp(24px, 2.7vw, 56px) * var(--s)), 44cqh, 17cqw);
+    padding: .42em 1em;
+    border-radius: .4em;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .12) inset, 0 8px 36px rgba(31, 194, 90, .4);
+    transition: font-size .5s cubic-bezier(.34, 1.5, .64, 1), background-color .2s;
+  }
+  #evet:hover { background: #26d466; }
+  #evet.tam {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border-radius: 0;
+    font-size: min(30vw, 42vh);
+    letter-spacing: -0.02em;
+    box-shadow: none;
+    clip-path: inset(0 round 0);
+    animation: kapla .7s cubic-bezier(.65, 0, .25, 1);
+  }
+  @keyframes kapla {
+    from {
+      clip-path: inset(var(--ust) var(--sag) var(--alt) var(--sol) round 24px);
+      font-size: var(--ilk);
+    }
+  }
+  #hayir.gizli { display: none; }
+  .butonlar.serbest { container-type: normal; }
+
+  #hayir {
+    --k: 1;
+    background: #e5383b;
+    font-size: calc(clamp(20px, 2.3vw, 46px) * var(--k));
+    padding: .55em 1.1em;
+    border-radius: .5em;
+    max-width: 92vw;
+    text-wrap: balance;
+    box-shadow: 0 6px 24px rgba(229, 56, 59, .4);
+    transition: font-size .4s ease, background-color .2s;
+  }
+  #hayir:hover { background: #f04a4d; }
+  #hayir.salla { animation: salla .35s ease; }
+  @keyframes salla {
+    25% { transform: translateX(-6px); }
+    50% { transform: translateX(6px); }
+    75% { transform: translateX(-3px); }
+  }
+
+  #cevap {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    text-align: center;
+    z-index: 1;
+  }
+  #cevap[hidden], #soru[hidden] { display: none; }
+
+  .cicek {
+    width: min(92vw, 100vh, 1100px);
+    aspect-ratio: 480 / 300;
+    overflow: visible;
+  }
+  .yuzer {
+    animation: yuz 6s ease-in-out 2.5s infinite;
+  }
+  @keyframes yuz {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  .belir {
+    opacity: 0;
+    animation: gorun 1.4s ease forwards;
+    animation-delay: var(--d);
+  }
+  @keyframes gorun { to { opacity: 1; } }
+  .lotus-yaprak {
+    transform-origin: 0 0;
+    transform: translate(0, 40px) rotate(var(--r0)) scale(.35, .78);
+    opacity: 0;
+    animation: lotusAc 3s cubic-bezier(.33, 0, .2, 1) forwards;
+    animation-delay: var(--d);
+  }
+  @keyframes lotusAc {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    100% { opacity: 1; transform: translate(0, 40px) rotate(var(--r)) scale(1, 1); }
+  }
+  .tohum {
+    transform-origin: 0 10px;
+    transform: scale(0);
+    animation: buyu 1.4s cubic-bezier(.22, 1, .36, 1) forwards;
+    animation-delay: var(--d);
+  }
+  @keyframes buyu { to { transform: scale(1); } }
+  .halka {
+    fill: none;
+    stroke: #ffd9e6;
+    stroke-width: 1.2;
+    transform-origin: 0 52px;
+    transform: scale(.6);
+    opacity: 0;
+    animation: dalga 5s ease-out infinite;
+    animation-delay: var(--d);
+  }
+  @keyframes dalga {
+    0% { transform: scale(.6); opacity: 0; }
+    15% { opacity: .35; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+
+  #cevap h2 {
+    margin: clamp(10px, 2.5vh, 28px) 0 0;
+    font-size: clamp(28px, 4.6vw, 68px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    text-wrap: balance;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, .7);
+    opacity: 0;
+    animation: belir .8s ease 1.8s forwards;
+  }
+  #cevap p {
+    margin: 10px 0 0;
+    font-size: clamp(16px, 1.7vw, 24px);
+    color: rgba(255, 255, 255, .75);
+    text-shadow: 0 1px 10px rgba(0, 0, 0, .8);
+    opacity: 0;
+    animation: belir .8s ease 2.3s forwards;
+  }
+  @keyframes belir {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+  #tekrar {
+    margin-top: clamp(14px, 3vh, 28px);
+    background: transparent;
+    color: rgba(255, 255, 255, .6);
+    font-size: 15px;
+    font-weight: 600;
+    padding: .6em 1.3em;
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: 999px;
+    opacity: 0;
+    animation: belir .8s ease 3s forwards;
+  }
+  #tekrar:hover { color: #fff; border-color: rgba(255, 255, 255, .6); }
+
+  #kalpler { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .kalp {
+    position: absolute;
+    bottom: -60px;
+    width: var(--b);
+    animation: uc var(--t) linear forwards;
+  }
+  .kalp svg { display: block; width: 100%; opacity: .75; animation: sag 2.4s ease-in-out infinite alternate; }
+  .isik {
+    position: absolute;
+    bottom: -20px;
+    width: var(--b);
+    height: var(--b);
+    animation: uc var(--t) linear forwards;
+  }
+  .isik span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: 0 0 calc(var(--b) * 2) calc(var(--b) * .6) var(--c);
+    animation: sag 3s ease-in-out infinite alternate, parla 1.8s ease-in-out infinite alternate;
+  }
+  @keyframes uc {
+    0% { transform: translateY(0); opacity: 0; }
+    12% { opacity: 1; }
+    75% { opacity: .85; }
+    100% { transform: translateY(calc(-100vh - 80px)); opacity: 0; }
+  }
+  @keyframes sag {
+    from { transform: translateX(-12px) rotate(-10deg); }
+    to { transform: translateX(12px) rotate(10deg); }
+  }
+  @keyframes parla {
+    from { opacity: .35; }
+    to { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<main id="soru">
+  <div class="karakter" id="karakter">
+    <svg viewBox="-60 -60 120 120" aria-hidden="true">
+      <g id="tac"></g>
+      <circle r="31" fill="#ffd27a"/>
+      <circle r="31" fill="url(#yuzIsik)"/>
+      <ellipse cx="-17" cy="8" rx="6" ry="3.6" fill="#ff7aa8" opacity=".7"/>
+      <ellipse cx="17" cy="8" rx="6" ry="3.6" fill="#ff7aa8" opacity=".7"/>
+      <g id="kas" stroke="#3a2416" stroke-width="2.6" stroke-linecap="round">
+        <line x1="-16" y1="-15" x2="-6" y2="-11"/>
+        <line x1="16" y1="-15" x2="6" y2="-11"/>
+      </g>
+      <ellipse cx="-11" cy="-3" rx="4.2" ry="5.4" fill="#2a1a10"/>
+      <ellipse cx="11" cy="-3" rx="4.2" ry="5.4" fill="#2a1a10"/>
+      <circle cx="-9.6" cy="-5" r="1.5" fill="#fff"/>
+      <circle cx="12.4" cy="-5" r="1.5" fill="#fff"/>
+      <path id="gozyasi" d="M-12 4 q-3 5 0 7 q3 -2 0 -7z" fill="#7cc8ff"/>
+      <path id="agiz" d="M-10 10 Q0 20 10 10" fill="none" stroke="#3a2416" stroke-width="2.8" stroke-linecap="round"/>
+      <defs>
+        <radialGradient id="yuzIsik" cx="35%" cy="30%" r="70%">
+          <stop offset="0" stop-color="#fff" stop-opacity=".35"/>
+          <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+    </svg>
+  </div>
+  <h1>Benimle Çıkar Mısın?</h1>
+  <div class="butonlar">
+    <button id="evet" type="button">Evet</button>
+    <button id="hayir" type="button">Hayır</button>
+  </div>
+</main>
+
+<section id="cevap" hidden>
+  <svg class="cicek" id="cicek" viewBox="-240 -200 480 300" aria-hidden="true"></svg>
+  <h2>Evet diyeceğini biliyordum 🤍</h2>
+  <button id="tekrar" type="button">↺ tekrar</button>
+</section>
+
+<div id="kalpler"></div>
+
+<script>
+const CUMLELER = [
+  'Emin misin?',
+  'Bir daha düşün 🤔',
+  'Kodu ben yazdım ama...',
+  'Bu buton bozuk galiba',
+  'Hata 404: Hayır bulunamadı',
+  'Ctrl + Z yapsan?',
+  'while (hayır) tekrarSor()',
+  'Son şansın 🥺',
+  'Peki... çok üzüldüm 💔'
+];
+
+const AGIZLAR = [
+  'M-10 10 Q0 20 10 10',
+  'M-8 13 Q0 17 8 13',
+  'M-8 15 L8 15',
+  'M-10 18 Q0 8 10 18'
+];
+
+const soru = document.getElementById('soru');
+const cevap = document.getElementById('cevap');
+const evet = document.getElementById('evet');
+const hayir = document.getElementById('hayir');
+const karakter = document.getElementById('karakter');
+const agiz = document.getElementById('agiz');
+const cicek = document.getElementById('cicek');
+const kalpler = document.getElementById('kalpler');
+const NS = 'http://www.w3.org/2000/svg';
+
+let sayac = 0;
+let kalpZamanlayici = null;
+
+function svgYap(ad, ozellikler) {
+  const el = document.createElementNS(NS, ad);
+  for (const k in ozellikler) el.setAttribute(k, ozellikler[k]);
+  return el;
+}
+
+function tacCiz() {
+  const tac = document.getElementById('tac');
+  for (let i = 0; i < 14; i++) {
+    tac.appendChild(svgYap('ellipse', {
+      cx: 0, cy: -38, rx: 9, ry: 20,
+      fill: i % 2 ? '#ff7aa8' : '#ff9cc0',
+      transform: 'rotate(' + (i * 360 / 14) + ')'
+    }));
+  }
+}
+
+function mod(n) {
+  if (n === 0) return 0;
+  if (n <= 2) return 1;
+  if (n <= 5) return 2;
+  return 3;
+}
+
+function guncelle() {
+  evet.style.setProperty('--s', 1 + sayac * 0.95);
+  hayir.style.setProperty('--k', Math.max(0.78, 1 - sayac * 0.03));
+  soru.style.setProperty('--n', sayac);
+  hayir.textContent = sayac === 0 ? 'Hayır' : CUMLELER[Math.min(sayac, CUMLELER.length) - 1];
+  const m = mod(sayac);
+  karakter.className = 'karakter mod-' + m;
+  agiz.setAttribute('d', AGIZLAR[m]);
+}
+
+function yenidenOynat(el, sinif) {
+  el.classList.remove(sinif);
+  void el.offsetWidth;
+  el.classList.add(sinif);
+}
+
+function tamEkranEvet() {
+  const r = evet.getBoundingClientRect();
+  evet.style.setProperty('--ust', r.top + 'px');
+  evet.style.setProperty('--sol', r.left + 'px');
+  evet.style.setProperty('--sag', (innerWidth - r.right) + 'px');
+  evet.style.setProperty('--alt', (innerHeight - r.bottom) + 'px');
+  evet.style.setProperty('--ilk', getComputedStyle(evet).fontSize);
+  evet.parentElement.classList.add('serbest');
+  evet.classList.add('tam');
+  hayir.classList.add('gizli');
+}
+
+hayir.addEventListener('click', () => {
+  if (sayac >= CUMLELER.length) {
+    tamEkranEvet();
+    return;
+  }
+  sayac++;
+  guncelle();
+  yenidenOynat(hayir, 'salla');
+  yenidenOynat(karakter, 'titre');
+});
+
+const KALP_RENK = ['#ffb3cc', '#ffd6e4', '#ffffff'];
+const ISIK_RENK = ['#ffe3a3', '#ffd0e0', '#fff6e0'];
+const KALP_ORANI = .12;
+
+function lotusYolu(u, g) {
+  return 'M0 0 C' + (g * .62) + ' ' + (-u * .18) + ' ' + (g * .55) + ' ' + (-u * .72) + ' 0 ' + (-u) +
+    ' C' + (-g * .55) + ' ' + (-u * .72) + ' ' + (-g * .62) + ' ' + (-u * .18) + ' 0 0Z';
+}
+
+function lotusYapragi(kap, aci, u, g, renk, gecikme) {
+  const y = svgYap('g', { class: 'lotus-yaprak' });
+  y.style.setProperty('--r', aci + 'deg');
+  y.style.setProperty('--r0', (aci * .04) + 'deg');
+  y.style.setProperty('--d', gecikme + 's');
+  const yol = lotusYolu(u, g);
+  y.appendChild(svgYap('path', { d: yol, fill: 'url(#' + renk + ')' }));
+  y.appendChild(svgYap('path', { d: yol, fill: 'url(#lotusYan)' }));
+  let damar = '';
+  [-.22, 0, .22].forEach(k => {
+    damar += 'M' + (k * g * .3) + ' -6 Q' + (k * g * .9) + ' ' + (-u * .5) + ' ' + (k * g * .2) + ' ' + (-u * .92) + ' ';
+  });
+  y.appendChild(svgYap('path', { d: damar, fill: 'none', stroke: '#ffffff', 'stroke-opacity': .22, 'stroke-width': .8 }));
+  y.appendChild(svgYap('path', { d: yol, fill: 'none', stroke: '#fff', 'stroke-opacity': .35, 'stroke-width': .7 }));
+  kap.appendChild(y);
+}
+
+function cicekCiz() {
+  cicek.innerHTML = '';
+  const defs = svgYap('defs', {});
+  defs.innerHTML =
+    '<linearGradient id="lotusOn" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fffaf5"/><stop offset=".45" stop-color="#ffe6ee"/><stop offset=".8" stop-color="#ff9cc0"/><stop offset="1" stop-color="#f0609a"/></linearGradient>' +
+    '<linearGradient id="lotusArka" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9b8c6"/><stop offset=".5" stop-color="#eeb6cb"/><stop offset=".85" stop-color="#e5739f"/><stop offset="1" stop-color="#cf4a83"/></linearGradient>' +
+    '<linearGradient id="lotusYan" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7a1d4a" stop-opacity=".35"/><stop offset=".35" stop-color="#7a1d4a" stop-opacity="0"/><stop offset=".55" stop-color="#ffffff" stop-opacity=".18"/><stop offset=".7" stop-color="#7a1d4a" stop-opacity="0"/><stop offset="1" stop-color="#7a1d4a" stop-opacity=".35"/></linearGradient>' +
+    '<radialGradient id="lotusIsik" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe2a0" stop-opacity=".55"/><stop offset=".25" stop-color="#ffc0d6" stop-opacity=".22"/><stop offset=".55" stop-color="#ff8fb8" stop-opacity=".08"/><stop offset="1" stop-color="#ff8fb8" stop-opacity="0"/></radialGradient>' +
+    '<radialGradient id="altinIsik" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff1b8" stop-opacity=".9"/><stop offset=".4" stop-color="#ffd36b" stop-opacity=".35"/><stop offset="1" stop-color="#ffd36b" stop-opacity="0"/></radialGradient>' +
+    '' +
+    '<linearGradient id="tohumRenk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9dc9a"/><stop offset="1" stop-color="#9c8a3e"/></linearGradient>' +
+    '<radialGradient id="nilufer" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#2f6b45"/><stop offset=".7" stop-color="#1a4430"/><stop offset="1" stop-color="#0f2a1e"/></radialGradient>' +
+    '<linearGradient id="padParilti" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe8d6" stop-opacity=".16"/><stop offset=".35" stop-color="#cfe8d6" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>' +
+    '<radialGradient id="suIsik" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff9cc0" stop-opacity=".22"/><stop offset="1" stop-color="#ff9cc0" stop-opacity="0"/></radialGradient>' +
+    '';
+  cicek.appendChild(defs);
+
+  const su = svgYap('ellipse', { cx: 0, cy: 58, rx: 240, ry: 46, fill: 'url(#suIsik)', class: 'belir' });
+  su.style.setProperty('--d', '.2s');
+  cicek.appendChild(su);
+  [0, 1.7, 3.4].forEach(d => {
+    const h = svgYap('ellipse', { cx: 0, cy: 52, rx: 150, ry: 22, class: 'halka' });
+    h.style.setProperty('--d', (1.5 + d) + 's');
+    cicek.appendChild(h);
+  });
+
+  const yuzen = svgYap('g', { class: 'yuzer' });
+  cicek.appendChild(yuzen);
+
+  const yaprak = svgYap('g', { class: 'belir' });
+  yaprak.style.setProperty('--d', '0s');
+  yaprak.innerHTML =
+    '<path d="M0 50 L22 30 A170 30 0 1 1 -22 30 Z" fill="url(#nilufer)"/>' +
+    '<path d="M0 50 L22 30 A170 30 0 1 1 -22 30 Z" fill="url(#padParilti)"/>' +
+    '<path d="M0 50 L22 30 A170 30 0 1 1 -22 30 Z" fill="none" stroke="#7fb38d" stroke-opacity=".3" stroke-width="1"/>';
+  let damar = '';
+  for (let i = 0; i < 14; i++) {
+    const a = Math.PI * (.6 + i / 13 * 1.8);
+    damar += 'M0 50 L' + (Math.cos(a) * 160).toFixed(1) + ' ' + (50 - Math.sin(a) * 26).toFixed(1) + ' ';
+  }
+  yaprak.appendChild(svgYap('path', { d: damar, stroke: '#8fc79f', 'stroke-opacity': .12, 'stroke-width': 1, fill: 'none' }));
+  yuzen.appendChild(yaprak);
+
+  const parilti = svgYap('ellipse', { cx: 0, cy: -50, rx: 230, ry: 170, fill: 'url(#lotusIsik)', class: 'belir' });
+  parilti.style.setProperty('--d', '1.4s');
+  yuzen.appendChild(parilti);
+
+  const arka = [[-74, 138, 56], [74, 138, 56], [-46, 160, 60], [46, 160, 60], [-17, 168, 58], [17, 168, 58]];
+  arka.forEach(([a, u, g], i) => lotusYapragi(yuzen, a, u, g, 'lotusArka', .5 + (arka.length - i) * .06));
+
+  const altin = svgYap('ellipse', { cx: 0, cy: -58, rx: 70, ry: 55, fill: 'url(#altinIsik)', class: 'belir' });
+  altin.style.setProperty('--d', '1.5s');
+  yuzen.appendChild(altin);
+  const tohumDis = svgYap('g', { transform: 'translate(0 -50) scale(1.05)' });
+  yuzen.appendChild(tohumDis);
+  const tohum = svgYap('g', { class: 'tohum' });
+  tohum.style.setProperty('--d', '1.3s');
+  let erkek = '';
+  for (let i = 0; i < 48; i++) {
+    const a = -158 + i / 47 * 136;
+    const r = a * Math.PI / 180;
+    const u = 24 + (i % 4) * 4;
+    const x = Math.cos(r) * u, y = 8 + Math.sin(r) * u;
+    erkek += '<path d="M' + (Math.cos(r) * 12).toFixed(1) + ' 8 Q' + (x * .6).toFixed(1) + ' ' + (y * .5 + 4).toFixed(1) + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + '" stroke="#ffe8a8" stroke-opacity=".75" stroke-width=".7" fill="none"/>' +
+      '<ellipse cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" rx=".9" ry="1.8" transform="rotate(' + (a + 90).toFixed(0) + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + ')" fill="#ffc94a"/>';
+  }
+  tohum.innerHTML = erkek +
+    '<path d="M-20 -6 L-13 14 Q0 18 13 14 L20 -6 Z" fill="url(#tohumRenk)"/>' +
+    '<ellipse cx="0" cy="-6" rx="20" ry="6" fill="#efe3a6"/>' +
+    '<circle cx="-8" cy="-6" r="1.4" fill="#8e9a4a"/><circle cx="0" cy="-8" r="1.4" fill="#8e9a4a"/><circle cx="8" cy="-6" r="1.4" fill="#8e9a4a"/><circle cx="-3" cy="-3.5" r="1.4" fill="#8e9a4a"/><circle cx="5" cy="-3.5" r="1.4" fill="#8e9a4a"/>';
+  tohumDis.appendChild(tohum);
+
+  const on = [[-90, 112, 56], [90, 112, 56], [-62, 128, 62], [62, 128, 62], [-32, 134, 64], [32, 134, 64]];
+  on.forEach(([a, u, g], i) => lotusYapragi(yuzen, a, u, g, 'lotusOn', .2 + i * .07));
+}
+
+function kalpUcur(hizli) {
+  const kalpMi = Math.random() < KALP_ORANI;
+  const k = document.createElement('div');
+  k.className = kalpMi ? 'kalp' : 'isik';
+  const boyut = kalpMi ? 12 + Math.random() * 12 : 2 + Math.random() * 4;
+  k.style.left = (Math.random() * 100) + 'vw';
+  k.style.setProperty('--b', boyut + 'px');
+  k.style.setProperty('--t', (hizli ? 5 : 7 + Math.random() * 6) + 's');
+  if (kalpMi) {
+    k.innerHTML = '<svg viewBox="0 0 24 22"><path fill="' + KALP_RENK[Math.floor(Math.random() * KALP_RENK.length)] +
+      '" d="M12 21.6 10.3 20C4.4 14.6.5 11.1.5 6.8.5 3.3 3.2.6 6.7.6c2 0 3.9.9 5.3 2.4C13.4 1.5 15.3.6 17.3.6c3.5 0 6.2 2.7 6.2 6.2 0 4.3-3.9 7.8-9.8 13.2z"/></svg>';
+  } else {
+    k.innerHTML = '<span></span>';
+    k.style.setProperty('--c', ISIK_RENK[Math.floor(Math.random() * ISIK_RENK.length)]);
+  }
+  k.firstChild.style.animationDelay = (-Math.random() * 3) + 's';
+  k.addEventListener('animationend', e => { if (e.target === k) k.remove(); });
+  kalpler.appendChild(k);
+}
+
+evet.addEventListener('click', () => {
+  soru.hidden = true;
+  cevap.hidden = false;
+  cicekCiz();
+  for (let i = 0; i < 10; i++) setTimeout(() => kalpUcur(true), 900 + i * 120);
+  clearInterval(kalpZamanlayici);
+  kalpZamanlayici = setInterval(() => kalpUcur(false), 220);
+});
+
+document.getElementById('tekrar').addEventListener('click', () => {
+  clearInterval(kalpZamanlayici);
+  kalpler.innerHTML = '';
+  cevap.hidden = true;
+  soru.hidden = false;
+  evet.classList.remove('tam');
+  evet.parentElement.classList.remove('serbest');
+  hayir.classList.remove('gizli');
+  sayac = 0;
+  guncelle();
+});
+
+tacCiz();
+guncelle();
+</script>
+</body>
+</html>
